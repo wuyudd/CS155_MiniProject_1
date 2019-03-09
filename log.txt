@@ -1,0 +1,61 @@
+1. logistic regression (only single model ,raw data)
+linear_model.LogisticRegression(penalty='l1', C=0.3, solver='liblinear')
+	(C is tested out by testing various C on training set via cross validation) 
+train auc:  0.7765346686748396
+test auc: 0.78375 (kaggle)
+
+2. logistic regression (only single model, drop same feature)
+!drop same_resp_features
+linear_model.LogisticRegression(penalty='l1', C=0.3, solver='liblinear')
+train auc:  0.7761645343786456
+test auc: 0.78339 (kaggle)
+
+3. gdbt (random_state=10, raw data)
+clf_gbdt = ensemble.GradientBoostingClassifier(random_state=10)
+train auc:  0.7929522993012791
+test auc: 0.78985 (kaggle)
+
+4. gdbt (adjust some params)
+clf_gbdt = ensemble.GradientBoostingClassifier(learning_rate=0.5, min_samples_split=300, min_samples_leaf=20,max_depth=5,max_features='sqrt', subsample=0.8,random_state=10)
+train auc:  0.8254147729384751
+test auc: 0.78047 (kaggle)
+
+5. xgboost()
+clf = XGBClassifier(max_depth=6) 
+
+apply(lambda x: -1 if x < 0 else x)
+drop(same_resp_feature)
+categorical_feats = ['GEREG', 'HUBUS', 'PTDTRACE', 'PENATVTY', 'PUABSOT', 'PEIO1COW', 
+                     'HUFINAL', 'GESTCEN', 'GESTFIPS', #'PEIO1ICD', 'PEIO2ICD', 
+                     'PRCITSHP', 'PUDIS', 'PRABSREA', 'PRWKSTAT', 'HUPRSCNT', 
+                     'PERRP', 'GTCBSAST', 'PRMJOCGR', 'HRHTYPE', ]
+train auc: 0.84
+test auc: 0.793(kaggle)
+
+6. decision tree 做one-hot coding效果不佳
+
+7. xgboost
+negative -9 -> nan
+drop same 
+clf_xgb = XGBClassifier(max_depth=9, gamma=0.3, subsample=0.8, min_child_weight=2, n_estimators=50, objective='binary:logistic') 
+train auc:  0.9095464257938255
+test auc:  0.7911421547430292
+
+all negative -9 -> nan
+
+8. 
+select_same_resp_feature
+# drop low resp features
+# recode
+# negative -> -1
+# encode some features
+test_size = 0.3
+X_train, X_test, y_train, y_test = model_selection.train_test_split(X, Y, test_size=test_size, random_state=10)
+clf_xgb = XGBClassifier(max_depth=8, gamma=0.3, subsample=0.7, min_child_weight=2, n_estimators=50, objective='binary:logistic') 
+clf_xgb.fit(X_train, y_train)
+y_train_pred = clf_xgb.predict_proba(X_train)[:, 1]
+y_test_pred = clf_xgb.predict_proba(X_test)[:, 1]
+
+train auc:  0.8724250633754376
+test auc:  0.7920151734759794
+
